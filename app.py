@@ -12,7 +12,8 @@ log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 
-DISCORD_TOKEN = "AICI_PUI_TOKENUL_TAU_DISCORD"
+# Token din variabila de mediu
+DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN", "")
 
 message_queue = None  
 discord_client = None
