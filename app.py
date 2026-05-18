@@ -36,7 +36,7 @@ class MySelfBot(discord.Client):
         super().__init__(*args, **kwargs)
 
     async def on_ready(self):
-        print(f'[Self-Bot] Conectat în siguranță ca {self.user}')
+        print(f'[Self-Bot] Conectat ca {self.user}')
         await self.change_presence(status=STATUS_MAP.get(config["current_status"], discord.Status.online))
         self.process_queue.start()
 
@@ -58,7 +58,7 @@ class MySelfBot(discord.Client):
             try:
                 channel = await self.fetch_channel(channel_id)
             except Exception as e:
-                print(f"[Eroare] Nu s-a putut accesa canalul {channel_id}: {e}")
+                print(f"[Eroare] Canal {channel_id}: {e}")
                 message_queue.task_done()
                 return
 
@@ -73,7 +73,7 @@ class MySelfBot(discord.Client):
                     await asyncio.sleep(2.5)
             
             await channel.send(final_message)
-            print(f"[Self-Bot] Mesaj trimis în #{channel.name}")
+            print(f"[Self-Bot] Trimis în #{channel.name}")
 
         except Exception as e:
             print(f"[Eroare Trimitere] {e}")
