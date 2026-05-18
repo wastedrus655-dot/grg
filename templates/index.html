@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RobyCord">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
     <title>RobyCord</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -26,13 +30,14 @@
             --status-offline: #80848e;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Inter', sans-serif;
             margin: 0; padding: 20px;
             background: var(--bg-body);
             color: var(--text-main);
             display: flex; justify-content: center; align-items: center; min-height: 100vh;
-            backdrop-filter: blur(20px);
             box-sizing: border-box;
         }
 
@@ -163,6 +168,14 @@
         }
         .btn-danger:hover { background: rgba(242, 63, 67, 0.35); }
 
+        .btn-apply {
+            width: 100%; padding: 10px; background: var(--accent); color: white;
+            border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+            cursor: pointer; font-family: 'Inter', sans-serif; margin-top: 12px;
+            transition: all 0.2s ease;
+        }
+        .btn-apply:hover { filter: brightness(1.1); }
+
         .live-settings-card {
             background: rgba(0,0,0,0.2); padding: 22px; border-radius: 16px; border: 1px solid var(--border); margin-top: 35px;
         }
@@ -271,13 +284,12 @@
                     <input type="number" step="0.1" min="0.1" id="delayMaxInput" value="10.0">
                 </div>
             </div>
+            
+            <button class="btn-apply" onclick="applyDelay()">✅ Apply Delay</button>
         </div>
 
-        <!-- CLEAR QUEUE BUTTON -->
         <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-            <button class="btn-danger" id="clearQueueBtn" onclick="clearQueue()">
-                🗑 Clear Queue
-            </button>
+            <button class="btn-danger" onclick="clearQueue()">🗑 Clear Queue</button>
         </div>
     </div>
 </div>
@@ -338,10 +350,13 @@
         }
     });
 
-    async function sendDelayUpdateLive() {
+    async function applyDelay() {
         const minVal = parseFloat(delayMinInput.value);
         const maxVal = parseFloat(delayMaxInput.value);
-        if (isNaN(minVal) || isNaN(maxVal) || minVal > maxVal) return;
+        
+        if (isNaN(minVal) || isNaN(maxVal)) return;
+        if (minVal > maxVal) { alert('Minimul trebuie să fie mai mic decât maximul!'); return; }
+        if (minVal < 0.1) { alert('Delay-ul minim este 0.1 secunde!'); return; }
 
         const formData = new FormData();
         formData.append('delay_min', minVal);
@@ -369,9 +384,6 @@
             }
         } catch (err) { console.error(err); }
     });
-
-    delayMinInput.addEventListener('input', sendDelayUpdateLive);
-    delayMaxInput.addEventListener('input', sendDelayUpdateLive);
 
     async function clearQueue() {
         try {
@@ -417,7 +429,6 @@
 
     updateModeBehavior();
     syncData();
-    
     setInterval(syncData, 2000);
 </script>
 
