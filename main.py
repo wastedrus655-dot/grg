@@ -1,3 +1,4 @@
+import os
 import asyncio
 import threading
 import random
@@ -175,5 +176,6 @@ def run_discord():
     loop.run_until_complete(discord_client.start(DISCORD_TOKEN))
 
 if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 5000))
     threading.Thread(target=run_discord, daemon=True).start()
-    app.run(host="127.0.0.1", port=5000, debug=False, use_reloader=False)
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
