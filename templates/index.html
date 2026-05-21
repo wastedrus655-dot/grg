@@ -20,9 +20,7 @@
             --online: #3fb950;
             --offline: #f85149;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg);
@@ -30,9 +28,7 @@
             padding: 15px;
             min-height: 100vh;
         }
-
         .container { max-width: 600px; margin: 0 auto; }
-
         .header {
             text-align: center;
             padding: 20px 0;
@@ -40,7 +36,6 @@
             margin-bottom: 20px;
         }
         .header h1 { color: var(--accent); font-size: 1.8em; }
-
         .add-section {
             background: var(--card);
             border: 1px solid var(--border);
@@ -61,7 +56,6 @@
             outline: none;
         }
         .add-section input:focus { border-color: var(--accent); }
-        
         button {
             background: var(--accent);
             color: #fff;
@@ -78,9 +72,7 @@
         button.red { background: var(--red); }
         button.sm { padding: 8px 12px; font-size: 12px; }
         button.full { width: 100%; }
-
         .token-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-        
         .token-item {
             background: var(--card);
             border: 1px solid var(--border);
@@ -94,14 +86,12 @@
         }
         .token-item:hover { border-color: var(--accent); }
         .token-item.active { border-color: var(--accent); background: rgba(88,101,242,0.1); }
-        
         .token-info { display: flex; flex-direction: column; gap: 3px; }
         .token-name { font-weight: 600; color: var(--accent); }
         .token-user { font-size: 0.8em; color: var(--muted); }
         .token-status { font-size: 0.7em; }
         .token-status.online { color: var(--online); }
         .token-status.offline { color: var(--offline); }
-
         .control-panel {
             background: var(--card);
             border: 1px solid var(--border);
@@ -110,10 +100,8 @@
             margin-bottom: 15px;
         }
         .control-panel h3 { margin-bottom: 15px; color: var(--accent); }
-        
         .btn-row { display: flex; gap: 6px; margin-bottom: 15px; }
         .btn-row button { flex: 1; }
-
         .form-group { margin-bottom: 15px; }
         .form-group label {
             display: block;
@@ -136,7 +124,6 @@
         }
         .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
         .form-group textarea { resize: vertical; min-height: 80px; }
-
         .queue-badge {
             display: inline-block;
             background: var(--accent);
@@ -146,14 +133,8 @@
             font-size: 12px;
             margin-left: 8px;
         }
-
-        .delay-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
+        .delay-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .delay-row input { text-align: center; }
-
         .toast {
             position: fixed;
             top: 10px;
@@ -172,34 +153,24 @@
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <h1>🔑 RobyCord</h1>
-    </div>
-
+    <div class="header"><h1>🔑 RobyCord</h1></div>
     <div class="add-section">
         <input type="text" id="newToken" placeholder="Discord token...">
         <button onclick="addToken()">+ Add</button>
     </div>
-
-    <div class="token-list" id="tokenList">
-        <div style="text-align:center;color:var(--muted);padding:20px;">Loading tokens...</div>
-    </div>
-
+    <div class="token-list" id="tokenList"><div style="text-align:center;color:var(--muted);padding:20px;">Loading...</div></div>
     <div id="controlPanel"></div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-let currentToken = null;
-let allTokens = [];
+let currentToken = null, allTokens = [];
 
-function showToast(msg, type = 'ok') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast ' + type;
-    t.style.display = 'block';
-    setTimeout(() => t.style.display = 'none', 2000);
+function showToast(m, t = 'ok') {
+    const e = document.getElementById('toast');
+    e.textContent = m; e.className = 'toast ' + t;
+    e.style.display = 'block';
+    setTimeout(() => e.style.display = 'none', 2000);
 }
 
 async function api(url, options = {}) {
@@ -211,13 +182,11 @@ async function api(url, options = {}) {
 
 async function loadTokens() {
     allTokens = await api('/api/tokens');
-    
     if (!allTokens.length) {
-        document.getElementById('tokenList').innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">No tokens. Add one!</div>';
+        document.getElementById('tokenList').innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">No tokens.</div>';
         document.getElementById('controlPanel').innerHTML = '';
         return;
     }
-
     document.getElementById('tokenList').innerHTML = allTokens.map(t => `
         <div class="token-item ${currentToken === t.id ? 'active' : ''}" onclick="selectToken('${t.id}')">
             <div class="token-info">
@@ -230,7 +199,6 @@ async function loadTokens() {
             </div>
         </div>
     `).join('');
-
     if (currentToken) {
         const token = allTokens.find(t => t.id === currentToken);
         if (token) showControlPanel(token);
@@ -248,32 +216,17 @@ function showControlPanel(token) {
     document.getElementById('controlPanel').innerHTML = `
         <div class="control-panel">
             <h3>👤 ${token.username || 'Unknown'} <span class="queue-badge" id="queueBadge">0</span></h3>
-            
             <div class="btn-row">
                 <button class="green" onclick="toggleToken('${token.id}','start')">▶ Start</button>
                 <button class="red" onclick="toggleToken('${token.id}','stop')">⏹ Stop</button>
                 <button onclick="clearTokenQueue('${token.id}')">🗑 Clear</button>
             </div>
-
-            <div class="form-group">
-                <label>Channel ID</label>
-                <input type="text" id="channelId" placeholder="ID canal...">
-            </div>
-            
-            <div class="form-group">
-                <label>User Mention (opțional)</label>
-                <input type="text" id="userMention" placeholder="ID user...">
-            </div>
-            
-            <div class="form-group">
-                <label>Message</label>
-                <textarea id="messageText" placeholder="Mesajul tău..."></textarea>
-            </div>
-            
+            <div class="form-group"><label>Channel ID</label><input type="text" id="channelId" placeholder="ID canal..."></div>
+            <div class="form-group"><label>User Mention (opțional)</label><input type="text" id="userMention" placeholder="ID user..."></div>
+            <div class="form-group"><label>Message</label><textarea id="messageText" placeholder="Mesaj..."></textarea></div>
             <button class="full" onclick="sendMsg('${token.id}')">📨 Send Message</button>
-
             <div style="margin-top:15px;padding-top:15px;border-top:1px solid var(--border);">
-                <label style="color:var(--muted);font-size:11px;margin-bottom:8px;">GLOBAL DELAY</label>
+                <label style="color:var(--muted);font-size:11px;margin-bottom:8px;">DELAY</label>
                 <div class="delay-row">
                     <input type="number" id="delayMin" value="5.0" step="0.1" placeholder="Min">
                     <input type="number" id="delayMax" value="10.0" step="0.1" placeholder="Max">
@@ -282,95 +235,44 @@ function showControlPanel(token) {
             </div>
         </div>
     `;
-
     syncTokenQueue(token.id);
 }
 
 async function addToken() {
-    const token = document.getElementById('newToken').value.trim();
-    if (!token) return showToast('Token required!', 'err');
-    
-    const res = await api('/api/tokens/add', { method: 'POST', body: JSON.stringify({ token }) });
-    if (res.success) {
-        showToast('Token added!');
-        document.getElementById('newToken').value = '';
-        loadTokens();
-    } else {
-        showToast(res.error || 'Error', 'err');
-    }
+    const t = document.getElementById('newToken').value.trim();
+    if (!t) return showToast('Token required!', 'err');
+    const r = await api('/api/tokens/add', { method: 'POST', body: JSON.stringify({ token: t }) });
+    if (r.success) { showToast('Added!'); document.getElementById('newToken').value = ''; loadTokens(); }
+    else showToast(r.error || 'Error', 'err');
 }
 
-async function toggleToken(id, action) {
-    await api(`/api/tokens/${id}/${action}`, { method: 'POST' });
-    showToast(`Token ${action}ed!`);
-    setTimeout(loadTokens, 1500);
-}
+async function toggleToken(id, a) { await api(`/api/tokens/${id}/${a}`, { method: 'POST' }); showToast(`${a}ed!`); setTimeout(loadTokens, 1500); }
 
 async function deleteToken(id) {
-    if (!confirm('Delete this token?')) return;
+    if (!confirm('Delete?')) return;
     await api(`/api/tokens/${id}/delete`, { method: 'POST' });
-    if (currentToken === id) {
-        currentToken = null;
-        document.getElementById('controlPanel').innerHTML = '';
-    }
-    showToast('Deleted!');
-    loadTokens();
+    if (currentToken === id) { currentToken = null; document.getElementById('controlPanel').innerHTML = ''; }
+    showToast('Deleted!'); loadTokens();
 }
 
 async function sendMsg(id) {
-    const channelId = document.getElementById('channelId').value.trim();
-    const userMention = document.getElementById('userMention').value.trim();
-    const message = document.getElementById('messageText').value.trim();
-
-    if (!channelId || !message) return showToast('Channel & message required!', 'err');
-
-    const res = await api(`/api/tokens/${id}/send`, {
-        method: 'POST',
-        body: JSON.stringify({
-            channel_id: channelId,
-            user_mention: userMention,
-            message: message,
-            simulate_typing: false
-        })
-    });
-
-    if (res.success) {
-        showToast('Sent!');
-        document.getElementById('messageText').value = '';
-        syncTokenQueue(id);
-    } else {
-        showToast(res.error || 'Error', 'err');
-    }
+    const ch = document.getElementById('channelId').value.trim();
+    const um = document.getElementById('userMention').value.trim();
+    const msg = document.getElementById('messageText').value.trim();
+    if (!ch || !msg) return showToast('Channel & message required!', 'err');
+    const r = await api(`/api/tokens/${id}/send`, { method: 'POST', body: JSON.stringify({ channel_id: ch, user_mention: um, message: msg }) });
+    if (r.success) { showToast('Sent!'); document.getElementById('messageText').value = ''; syncTokenQueue(id); }
+    else showToast(r.error || 'Error', 'err');
 }
 
-async function clearTokenQueue(id) {
-    await api(`/api/tokens/${id}/clear`, { method: 'POST' });
-    document.getElementById('queueBadge').textContent = '0';
-    showToast('Queue cleared!');
-}
-
-async function syncTokenQueue(id) {
-    const res = await api(`/api/tokens/${id}/queue`);
-    const badge = document.getElementById('queueBadge');
-    if (badge) badge.textContent = res.queue_count || 0;
-}
-
+async function clearTokenQueue(id) { await api(`/api/tokens/${id}/clear`, { method: 'POST' }); document.getElementById('queueBadge').textContent = '0'; }
+async function syncTokenQueue(id) { const r = await api(`/api/tokens/${id}/queue`); const b = document.getElementById('queueBadge'); if (b) b.textContent = r.queue_count || 0; }
 async function applyDelay() {
-    const minVal = document.getElementById('delayMin').value;
-    const maxVal = document.getElementById('delayMax').value;
-    
-    const formData = new FormData();
-    formData.append('delay_min', minVal);
-    formData.append('delay_max', maxVal);
-    
-    await fetch('/set_delay', { method: 'POST', body: formData });
-    showToast('Delay applied!');
+    const fd = new FormData(); fd.append('delay_min', document.getElementById('delayMin').value); fd.append('delay_max', document.getElementById('delayMax').value);
+    await fetch('/set_delay', { method: 'POST', body: fd }); showToast('Delay applied!');
 }
 
-setInterval(() => {
-    if (currentToken) syncTokenQueue(currentToken);
-}, 3000);
-
+setInterval(() => { if (currentToken) syncTokenQueue(currentToken); }, 3000);
 loadTokens();
 </script>
 </body>
