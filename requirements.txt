@@ -1,3 +1,4 @@
 flask
 discord.py-self
-gunicorn
+pymongo
+dnspython
