@@ -9,143 +9,89 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0d1117;
-            --card: #161b22;
-            --border: #30363d;
-            --text: #c9d1d9;
-            --muted: #8b949e;
-            --accent: #5865f2;
-            --green: #238636;
-            --red: #da3633;
-            --online: #3fb950;
-            --offline: #f85149;
+            --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #c9d1d9;
+            --muted: #8b949e; --accent: #5865f2; --green: #238636; --red: #da3633;
+            --online: #3fb950; --offline: #f85149;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            padding: 15px;
-            min-height: 100vh;
+            background: var(--bg); color: var(--text);
+            padding: 15px; min-height: 100vh;
         }
         .container { max-width: 600px; margin: 0 auto; }
         .header {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 2px solid var(--accent);
-            margin-bottom: 20px;
+            text-align: center; padding: 20px 0;
+            border-bottom: 2px solid var(--accent); margin-bottom: 20px;
         }
         .header h1 { color: var(--accent); font-size: 1.8em; }
         .add-section {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            gap: 8px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px; margin-bottom: 15px;
+            display: flex; gap: 8px;
         }
         .add-section input {
-            flex: 1;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
+            flex: 1; background: var(--bg); border: 1px solid var(--border);
+            color: var(--text); padding: 12px; border-radius: 8px;
+            font-size: 14px; outline: none;
         }
         .add-section input:focus { border-color: var(--accent); }
         button {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 12px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            white-space: nowrap;
+            background: var(--accent); color: #fff; border: none;
+            padding: 10px 16px; border-radius: 8px; cursor: pointer;
+            font-weight: 600; font-size: 14px; white-space: nowrap;
         }
         button:hover { filter: brightness(1.1); }
         button.green { background: var(--green); }
         button.red { background: var(--red); }
         button.sm { padding: 8px 12px; font-size: 12px; }
         button.full { width: 100%; }
+        
         .token-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
         .token-item {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 15px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 15px;
+            display: flex; justify-content: space-between; align-items: center;
             transition: all 0.2s;
         }
-        .token-item:hover { border-color: var(--accent); }
         .token-item.active { border-color: var(--accent); background: rgba(88,101,242,0.1); }
         .token-info { display: flex; flex-direction: column; gap: 3px; }
-        .token-name { font-weight: 600; color: var(--accent); }
+        .token-name { font-weight: 600; color: var(--accent); cursor: pointer; }
         .token-user { font-size: 0.8em; color: var(--muted); }
-        .token-status { font-size: 0.7em; }
-        .token-status.online { color: var(--online); }
-        .token-status.offline { color: var(--offline); }
+        .token-actions { display: flex; gap: 5px; align-items: center; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .status-dot.online { background: var(--online); }
+        .status-dot.offline { background: var(--offline); }
+        
         .control-panel {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; margin-bottom: 15px;
         }
         .control-panel h3 { margin-bottom: 15px; color: var(--accent); }
         .btn-row { display: flex; gap: 6px; margin-bottom: 15px; }
         .btn-row button { flex: 1; }
         .form-group { margin-bottom: 15px; }
         .form-group label {
-            display: block;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 6px;
-            font-weight: 600;
+            display: block; font-size: 11px; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 6px; font-weight: 600;
         }
         .form-group input, .form-group textarea {
-            width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            outline: none;
+            width: 100%; background: var(--bg); border: 1px solid var(--border);
+            color: var(--text); padding: 12px; border-radius: 8px;
+            font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
         }
         .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
         .form-group textarea { resize: vertical; min-height: 80px; }
         .queue-badge {
-            display: inline-block;
-            background: var(--accent);
-            color: #fff;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-left: 8px;
+            display: inline-block; background: var(--accent); color: #fff;
+            padding: 3px 10px; border-radius: 12px; font-size: 12px; margin-left: 8px;
         }
         .delay-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .delay-row input { text-align: center; }
         .toast {
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            border-radius: 8px;
-            z-index: 999;
-            font-weight: 600;
-            font-size: 14px;
-            display: none;
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+            padding: 10px 20px; border-radius: 8px; z-index: 999;
+            font-weight: 600; font-size: 14px; display: none;
         }
         .toast.ok { background: var(--green); color: #fff; }
         .toast.err { background: var(--red); color: #fff; }
@@ -154,13 +100,19 @@
 <body>
 <div class="container">
     <div class="header"><h1>🔑 RobyCord</h1></div>
+    
     <div class="add-section">
         <input type="text" id="newToken" placeholder="Discord token...">
         <button onclick="addToken()">+ Add</button>
     </div>
-    <div class="token-list" id="tokenList"><div style="text-align:center;color:var(--muted);padding:20px;">Loading...</div></div>
+
+    <div class="token-list" id="tokenList">
+        <div style="text-align:center;color:var(--muted);padding:20px;">Loading...</div>
+    </div>
+
     <div id="controlPanel"></div>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -187,18 +139,22 @@ async function loadTokens() {
         document.getElementById('controlPanel').innerHTML = '';
         return;
     }
+    
     document.getElementById('tokenList').innerHTML = allTokens.map(t => `
-        <div class="token-item ${currentToken === t.id ? 'active' : ''}" onclick="selectToken('${t.id}')">
-            <div class="token-info">
+        <div class="token-item ${currentToken === t.id ? 'active' : ''}">
+            <div class="token-info" onclick="selectToken('${t.id}')">
                 <div class="token-name">🔑 ${t.token_preview}</div>
                 <div class="token-user">👤 ${t.username}</div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <span class="token-status ${t.status === 'online' ? 'online' : 'offline'}">${t.status === 'online' ? '🟢' : '🔴'}</span>
+            <div class="token-actions">
+                <span class="status-dot ${t.connected ? 'online' : 'offline'}"></span>
+                <button class="sm green" onclick="event.stopPropagation();connectToken('${t.id}')">🔌</button>
+                <button class="sm red" onclick="event.stopPropagation();disconnectToken('${t.id}')">🔌</button>
                 <button class="sm red" onclick="event.stopPropagation();deleteToken('${t.id}')">🗑</button>
             </div>
         </div>
     `).join('');
+
     if (currentToken) {
         const token = allTokens.find(t => t.id === currentToken);
         if (token) showControlPanel(token);
@@ -216,13 +172,8 @@ function showControlPanel(token) {
     document.getElementById('controlPanel').innerHTML = `
         <div class="control-panel">
             <h3>👤 ${token.username || 'Unknown'} <span class="queue-badge" id="queueBadge">0</span></h3>
-            <div class="btn-row">
-                <button class="green" onclick="toggleToken('${token.id}','start')">▶ Start</button>
-                <button class="red" onclick="toggleToken('${token.id}','stop')">⏹ Stop</button>
-                <button onclick="clearTokenQueue('${token.id}')">🗑 Clear</button>
-            </div>
             <div class="form-group"><label>Channel ID</label><input type="text" id="channelId" placeholder="ID canal..."></div>
-            <div class="form-group"><label>User Mention (opțional)</label><input type="text" id="userMention" placeholder="ID user..."></div>
+            <div class="form-group"><label>User (opțional)</label><input type="text" id="userMention" placeholder="ID user..."></div>
             <div class="form-group"><label>Message</label><textarea id="messageText" placeholder="Mesaj..."></textarea></div>
             <button class="full" onclick="sendMsg('${token.id}')">📨 Send Message</button>
             <div style="margin-top:15px;padding-top:15px;border-top:1px solid var(--border);">
@@ -246,7 +197,17 @@ async function addToken() {
     else showToast(r.error || 'Error', 'err');
 }
 
-async function toggleToken(id, a) { await api(`/api/tokens/${id}/${a}`, { method: 'POST' }); showToast(`${a}ed!`); setTimeout(loadTokens, 1500); }
+async function connectToken(id) {
+    await api(`/api/tokens/${id}/connect`, { method: 'POST' });
+    showToast('Connected!');
+    setTimeout(loadTokens, 1500);
+}
+
+async function disconnectToken(id) {
+    await api(`/api/tokens/${id}/disconnect`, { method: 'POST' });
+    showToast('Disconnected!');
+    setTimeout(loadTokens, 1500);
+}
 
 async function deleteToken(id) {
     if (!confirm('Delete?')) return;
@@ -260,16 +221,26 @@ async function sendMsg(id) {
     const um = document.getElementById('userMention').value.trim();
     const msg = document.getElementById('messageText').value.trim();
     if (!ch || !msg) return showToast('Channel & message required!', 'err');
-    const r = await api(`/api/tokens/${id}/send`, { method: 'POST', body: JSON.stringify({ channel_id: ch, user_mention: um, message: msg }) });
+    const r = await api(`/api/tokens/${id}/send`, {
+        method: 'POST',
+        body: JSON.stringify({ channel_id: ch, user_mention: um, message: msg })
+    });
     if (r.success) { showToast('Sent!'); document.getElementById('messageText').value = ''; syncTokenQueue(id); }
     else showToast(r.error || 'Error', 'err');
 }
 
-async function clearTokenQueue(id) { await api(`/api/tokens/${id}/clear`, { method: 'POST' }); document.getElementById('queueBadge').textContent = '0'; }
-async function syncTokenQueue(id) { const r = await api(`/api/tokens/${id}/queue`); const b = document.getElementById('queueBadge'); if (b) b.textContent = r.queue_count || 0; }
+async function syncTokenQueue(id) {
+    const r = await api(`/api/tokens/${id}/queue`);
+    const b = document.getElementById('queueBadge');
+    if (b) b.textContent = r.queue_count || 0;
+}
+
 async function applyDelay() {
-    const fd = new FormData(); fd.append('delay_min', document.getElementById('delayMin').value); fd.append('delay_max', document.getElementById('delayMax').value);
-    await fetch('/set_delay', { method: 'POST', body: fd }); showToast('Delay applied!');
+    const fd = new FormData();
+    fd.append('delay_min', document.getElementById('delayMin').value);
+    fd.append('delay_max', document.getElementById('delayMax').value);
+    await fetch('/set_delay', { method: 'POST', body: fd });
+    showToast('Delay applied!');
 }
 
 setInterval(() => { if (currentToken) syncTokenQueue(currentToken); }, 3000);
