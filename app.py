@@ -15,7 +15,7 @@ log.setLevel(logging.ERROR)
 app = Flask(__name__)
 
 # ========== MONGO DB ==========
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://user:pass@cluster.mongodb.net/?retryWrites=true&w=majority")
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://wastedrus655_db_user:55Fxvg7t@cluster0.mqvx176.mongodb.net/?appName=Cluster0")
 client = MongoClient(MONGO_URI)
 db = client["robycord"]
 tokens_col = db["tokens"]
