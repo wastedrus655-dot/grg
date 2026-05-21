@@ -35,12 +35,12 @@ try:
         print("✅ MongoDB conectat")
     else:
         MONGO_OK = False
-        print("⚠️ MONGO_URI nu e setat")
+        print("⚠️ MONGO_URI nu e setat - folosesc stocare locală")
 except Exception as e:
-    print(f"❌ Eroare MongoDB: {e}")
+    print(f"⚠️ MongoDB: {e} - folosesc stocare locală")
     MONGO_OK = False
 
-# ========== STOCARE LOCALĂ DACĂ NU E MONGO ==========
+# ========== STOCARE LOCALĂ ==========
 if not MONGO_OK:
     tokens_col = None
     local_tokens = []
@@ -104,10 +104,13 @@ class MySelfBot(discord.Client):
         await self.change_presence(status=STATUS_MAP.get(config["current_status"], discord.Status.online))
         
         if MONGO_OK and tokens_col is not None:
-            tokens_col.update_one(
-                {"_id": self.token_id},
-                {"$set": {"username": str(self.user), "status": "online", "last_seen": datetime.now()}}
-            )
+            try:
+                tokens_col.update_one(
+                    {"_id": self.token_id},
+                    {"$set": {"username": str(self.user), "status": "online", "last_seen": datetime.now()}}
+                )
+            except:
+                pass
         else:
             update_token_local(self.token_id, {"username": str(self.user), "status": "online"})
         
@@ -173,29 +176,29 @@ def start_bot_for_token(token_data):
             loop.run_until_complete(client.start(token))
         except Exception as e:
             print(f"❌ Eroare pornire bot {token_id}: {e}")
+            if token_id in discord_clients:
+                del discord_clients[token_id]
+            if token_id in message_queues:
+                del message_queues[token_id]
     
     thread = threading.Thread(target=run, daemon=True)
     thread.start()
 
-def start_all_bots():
-    if not DISCORD_OK:
-        return
-    for token_data in load_tokens():
-        start_bot_for_token(token_data)
+def stop_bot(token_id):
+    if token_id in discord_clients:
+        client = discord_clients[token_id]
+        try:
+            asyncio.run_coroutine_threadsafe(client.close(), client.loop)
+        except:
+            pass
+        del discord_clients[token_id]
+        if token_id in message_queues:
+            del message_queues[token_id]
 
 # ========== RUTE ==========
 @app.route("/")
 def index():
     return render_template("index.html")
-
-@app.route("/health")
-def health():
-    return jsonify({
-        "status": "ok",
-        "discord": DISCORD_OK,
-        "mongo": MONGO_OK,
-        "python": sys.version
-    })
 
 @app.route("/api/tokens", methods=["GET"])
 def get_tokens():
@@ -203,10 +206,12 @@ def get_tokens():
     result = []
     for t in tokens:
         tid = str(t["_id"]) if MONGO_OK else t["_id"]
+        is_connected = tid in discord_clients
         result.append({
             "id": tid,
             "username": t.get("username", "Unknown"),
-            "status": t.get("status", "offline"),
+            "status": "online" if is_connected else t.get("status", "offline"),
+            "connected": is_connected,
             "token_preview": t["token"][:15] + "..." if len(t["token"]) > 15 else t["token"]
         })
     return jsonify(result)
@@ -229,8 +234,8 @@ def add_token():
         token_data = save_token_local(token)
         return jsonify({"success": True, "id": token_data["_id"]})
 
-@app.route("/api/tokens/<token_id>/start", methods=["POST"])
-def start_token(token_id):
+@app.route("/api/tokens/<token_id>/connect", methods=["POST"])
+def connect_token(token_id):
     if MONGO_OK and tokens_col is not None:
         from bson import ObjectId
         token_data = tokens_col.find_one({"_id": ObjectId(token_id)})
@@ -243,35 +248,29 @@ def start_token(token_id):
     start_bot_for_token(token_data)
     return jsonify({"success": True})
 
-@app.route("/api/tokens/<token_id>/stop", methods=["POST"])
-def stop_token(token_id):
-    if token_id in discord_clients:
-        client = discord_clients[token_id]
-        asyncio.run_coroutine_threadsafe(client.close(), client.loop)
-        del discord_clients[token_id]
-        if token_id in message_queues:
-            del message_queues[token_id]
-        
-        if MONGO_OK and tokens_col is not None:
-            from bson import ObjectId
+@app.route("/api/tokens/<token_id>/disconnect", methods=["POST"])
+def disconnect_token(token_id):
+    stop_bot(token_id)
+    if MONGO_OK and tokens_col is not None:
+        from bson import ObjectId
+        try:
             tokens_col.update_one({"_id": ObjectId(token_id)}, {"$set": {"status": "offline"}})
-        else:
-            update_token_local(token_id, {"status": "offline"})
-        return jsonify({"success": True})
-    return jsonify({"error": "Not running"}), 404
+        except:
+            pass
+    else:
+        update_token_local(token_id, {"status": "offline"})
+    return jsonify({"success": True})
 
 @app.route("/api/tokens/<token_id>/delete", methods=["POST"])
 def delete_token(token_id):
-    if token_id in discord_clients:
-        client = discord_clients[token_id]
-        asyncio.run_coroutine_threadsafe(client.close(), client.loop)
-        del discord_clients[token_id]
-        if token_id in message_queues:
-            del message_queues[token_id]
+    stop_bot(token_id)
     
     if MONGO_OK and tokens_col is not None:
         from bson import ObjectId
-        tokens_col.delete_one({"_id": ObjectId(token_id)})
+        try:
+            tokens_col.delete_one({"_id": ObjectId(token_id)})
+        except:
+            pass
     else:
         delete_token_local(token_id)
     return jsonify({"success": True})
@@ -286,9 +285,12 @@ def send_message(token_id):
     if not channel_id or not message:
         return jsonify({"error": "Missing fields"}), 400
     
+    if token_id not in discord_clients:
+        return jsonify({"error": "Not connected!"}), 400
+    
     queue = message_queues.get(token_id)
     if queue is None:
-        return jsonify({"error": "Bot not running"}), 400
+        return jsonify({"error": "Queue not found"}), 400
     
     asyncio.run_coroutine_threadsafe(
         queue.put({
@@ -347,12 +349,9 @@ def set_status():
     return jsonify({"status": "error"}), 400
 
 if __name__ == "__main__":
-    print(f"🚀 Pornire RobyCord")
+    print(f"🚀 RobyCord")
     print(f"📦 Discord: {'✅' if DISCORD_OK else '❌'}")
-    print(f"🗄️ MongoDB: {'✅' if MONGO_OK else '⚠️ (local storage)'}")
-    
-    if DISCORD_OK:
-        start_all_bots()
+    print(f"🗄️ MongoDB: {'✅' if MONGO_OK else '⚠️ (local)'}")
     
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
